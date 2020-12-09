@@ -1,0 +1,58 @@
+- hosts: namenode
+  vars_prompt:
+    - name: ndir
+      private: no
+      prompt: "Enter name for directory for namenode"
+    - name: mport
+      private: no
+      prompt: "Enter port number for namenode"
+  tasks:
+  - name: "Creating directory "
+    file:
+      state: directory
+      path: "{{ ndir }}"
+  - name: "copying hdfs-site.xml file"
+    template:
+      dest: "/etc/hadoop/hdfs-site.xml"
+      src: "hdfs-site.xml"
+  - name: "copying core-site.xml"
+    template:
+      dest: "/etc/hadoop/core-site.xml"
+      src: "core-site.xml"
+  - name: "format namenode"
+    shell: "echo Y|hadoop namenode -format"
+  - name: "Start namenode service"
+    command: "hadoop-daemon.sh start namenode"
+  - name:"Disabling firewall"
+    service:
+      name: "firewalld"
+      state: stopped
+      enabled: False
+- hosts: datanode
+  vars_prompt:
+    - name: dadir
+      private: no
+      prompt: "Enter name for directory for datanode"
+    - name: dport
+      private: no
+      prompt: "Enter namenode port"
+    - name: nnip
+      private: no
+      prompt: "Enter master IP"
+  tasks:
+    - name: "creating directory"
+      file:
+        state: directory
+        path: "{{ dadir }}"
+    - name: "copying hdfs-site.xml"
+      template:
+        dest: "/etc/hadoop/hdfs-site.xml"
+        src: "dhdfs-site.xml"
+    - name: "copying core-site.xml"
+      template:
+        dest: "/etc/hadoop/core-site.xml"
+        src: "dcore-site.xml"
+   
+    - name:
+      command: "hadoop-daemon.sh start datanode"
+
